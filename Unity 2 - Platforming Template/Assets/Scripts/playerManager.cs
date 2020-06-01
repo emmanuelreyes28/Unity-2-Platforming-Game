@@ -8,6 +8,8 @@ public class playerManager : MonoBehaviour
     // Player specific variables
     private int health;
     private int score;
+    private List<Collectable> inventory = new List<Collectable>();
+    private int currentIndex;
 
     // Boolean values
     private bool isGamePaused = false;
@@ -18,6 +20,8 @@ public class playerManager : MonoBehaviour
     public GameObject pauseMenu;
     public GameObject winMenu;
     public GameObject loseMenu;
+    public Text inventoryText;
+    public Text descriptionText;
 
     // Start is called before the first frame update
     void Start()
@@ -46,6 +50,36 @@ public class playerManager : MonoBehaviour
         if (health <= 0)
         {
             LoseGame();
+        }
+        if(inventory.Count == 0)
+        {
+            //if inventory is empty 
+            inventoryText.text = "Current Selection: None";
+            descriptionText.text = "";
+        }
+        else
+        {
+            inventoryText.text = "Current Selection: " + inventory[currentIndex].collectableName + " " + currentIndex.ToString();
+            descriptionText.text = "Press [E] to " + inventory[currentIndex].description;
+
+        }
+        if(Input.GetKeyDown(KeyCode.E))
+        {
+            //Using 
+            if(inventory.Count > 0)
+            {
+                inventory[currentIndex].Use();
+                inventory.RemoveAt(currentIndex);
+                currentIndex = (currentIndex -1) % inventory.Count;
+            }
+        }
+        if(Input.GetKeyDown(KeyCode.I))
+        {
+            if(inventory.Count > 0)
+            {
+                //Move to the next item in inventory
+                currentIndex = (currentIndex + 1) % inventory.Count; 
+            }
         }
     }
 
@@ -115,6 +149,16 @@ public class playerManager : MonoBehaviour
     public void ChangeScore(int value)
     {
         score += value;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.GetComponent<Collectable>() != null)
+        {
+            collision.GetComponent<Collectable>().player = this.gameObject;
+            inventory.Add(collision.GetComponent<Collectable>());
+            Destroy(collision.gameObject);
+        }
     }
 
 }
