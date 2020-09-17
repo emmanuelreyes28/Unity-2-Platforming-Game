@@ -5,6 +5,10 @@ using UnityEngine.UI;
 
 public class playerManager : MonoBehaviour
 {
+    private List<Collectable> inventory = new List<Collectable>();
+    public Text inventoryText;
+    public Text descriptionText;
+    private int currentIndex;
     // Player specific variables
     private int health;
     private int score;
@@ -38,7 +42,7 @@ public class playerManager : MonoBehaviour
     void Update()
     {
         healthText.text = "Health: " + health.ToString();
-        scoreText.text  = "Score:  " + score.ToString();
+        scoreText.text = "Score:  " + score.ToString();
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             PauseGame();
@@ -47,9 +51,39 @@ public class playerManager : MonoBehaviour
         {
             LoseGame();
         }
+
+        if (inventory.Count == 0)
+        {
+            //If the inventory is empty
+            inventoryText.text = "Current Selection: None";
+            descriptionText.text = "";
+        }
+        else
+        {
+            inventoryText.text = "Current Selection: " + inventory[currentIndex].collectableName + " " + currentIndex.ToString();
+            descriptionText.text = "Press [E] to " + inventory[currentIndex].description;
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            //Using
+            inventory[currentIndex].Use();
+            inventory.RemoveAt(currentIndex);
+            currentIndex = (currentIndex - 1) % inventory.Count;
+        }
+
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            if (inventory.Count > 0)
+            {
+                //move to the next item in the invetory 
+                currentIndex = (currentIndex - 1) % inventory.Count;
+            }
+        }
+
     }
 
-   void FindAllMenus()
+    void FindAllMenus()
     {
         if (healthText == null)
         {
@@ -114,6 +148,17 @@ public class playerManager : MonoBehaviour
     public void ChangeScore(int value)
     {
         score += value;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.GetComponent<Collectable>() != null)
+        {
+            collision.GetComponent<Collectable>().player = this.gameObject;
+            collision.gameObject.transform.parent = null;
+            inventory.Add(collision.GetComponent<Collectable>());
+            collision.gameObject.SetActive(false);
+        }
     }
 
 }
