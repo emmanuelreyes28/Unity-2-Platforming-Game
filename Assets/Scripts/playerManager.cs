@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class playerManager : MonoBehaviour
 {
     private List<Collectable> inventory = new List<Collectable>();
-    public Text inventoryText;
-    public Text descriptionText;
+    public TextMeshProUGUI inventoryText;
+    public TextMeshProUGUI descriptionText;
     private int currentIndex;
     // Player specific variables
     private int health;
@@ -77,7 +78,7 @@ public class playerManager : MonoBehaviour
             if (inventory.Count > 0)
             {
                 //move to the next item in the invetory 
-                currentIndex = (currentIndex - 1) % inventory.Count;
+                currentIndex = (currentIndex + 1) % inventory.Count;
             }
         }
 
